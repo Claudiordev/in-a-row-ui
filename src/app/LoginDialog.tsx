@@ -26,7 +26,7 @@ export default function LoginDialog(props: LoginDialogProps) {
 
     const handleLogin = async () => {
         try {
-            const res = await fetch(`${API_BASE_URL}/api/v1/players/login?username=${encodeURIComponent(username)}`,
+            const res = await fetch(`http://localhost:8080/api/v1/players/login?username=${encodeURIComponent(username)}`,
                 {
                     method: "GET",
                     headers: {

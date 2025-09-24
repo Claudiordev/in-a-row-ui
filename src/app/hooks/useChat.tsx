@@ -29,7 +29,7 @@ export const MessagesProvider: React.FC<{ children: React.ReactNode}> = ({childr
     const [loggedInPlayers, setLoggedInPlayers] = useState<PlayerDTO[]>([]);
 
     useEffect(() => {
-        const socket = new SockJS("http://26.239.160.114:8080/websocket");
+        const socket = new SockJS("http://localhost:8080/websocket");
         const stompClient = new Client({
             webSocketFactory: () => socket as never,
             debug: (str) => console.log("[STOMP]", str),
@@ -59,7 +59,7 @@ export const MessagesProvider: React.FC<{ children: React.ReactNode}> = ({childr
         const interval = setInterval(async () => {
             try {
 
-                const res = await fetch(`http://26.239.160.114:8080/api/v1/players/loggedIn`,
+                const res = await fetch(`http://localhost:8080/api/v1/players/loggedIn`,
                     {
                         method: "GET",
                         headers: {

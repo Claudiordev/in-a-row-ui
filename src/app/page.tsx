@@ -4,14 +4,15 @@ import { useChat} from "@/app/hooks/useChat";
 import {useEffect, useRef, useState} from "react";
 import { PlayerDTO, Message } from "@/app/types/types";
 import PlayerSidebar from "@/app/PlayerSideBar";
-import LoginDialog from "./LoginDialog";
-import Button from "@mui/material/Button";
+import {LoginForm} from "@/app/atoms/LoginForm";
+import { Box, IconButton, List, ListItem, Paper, TextField, Typography } from "@mui/material";
+import ListItemText from "@mui/material/ListItemText";
+import SendIcon from "@mui/icons-material/Send";
 
 export default function Home() {
     const [input, setInput] = useState("");
     const { messages, sendMessage, username, uuid, loggedIn, loggedInPlayers } = useChat(); // call your hook
     const endOfMessagesRef = useRef<HTMLDivElement | null>(null);
-    const [dialogOpen, setDialogOpen] = useState(false);
 
     const handleSend = () => {
         if (!input.trim()) return;
@@ -30,7 +31,6 @@ export default function Home() {
 
         // Send any JSON object
         sendMessage(msg);
-
         setInput("");
     };
 
@@ -39,47 +39,96 @@ export default function Home() {
     }, [messages, loggedIn]);
 
   return (
-      <div style={{ display: "flex", height: "100vh", padding: 20 }}>
-
-          <LoginDialog open={dialogOpen} onClose={() => setDialogOpen(false)} />
-      <div style={{ flex: 1, marginRight: 20, float: "right" }}>
-          <h1>Chat</h1>
-
+      <div className="background">
           { loggedIn ? (
-              <>
-                  <div style={{
-                      border: "1px solid #ccc",
-                      padding: 10,
-                      height: 500,
-                      width: 1200,
-                      overflowY: "scroll",
-                      marginBottom: 10,
-                  }}>
-                      {messages.map((msg, idx) => (
-                          <div key={idx}><strong>{msg.username}:</strong> {msg.message}</div>
-                      ))}
+              <><Box
+                  sx={{
+                      display: "flex",
+                      justifyContent: "center", // horizontally center
+                      alignItems: "center", // vertically center
+                      height: "80vh",
+                      backgroundColor: "#f0f2f5",
+                      borderRadius: 5,
+                      p: 2,
+                  }}
+              >
+                  {/* Chat Window */}
+                  <Box
+                      sx={{
+                          flexDirection: "column",
+                          gap: 2,
+                          width: 800, // fixed width
+                          height: 500, // fixed height
+                          display: "flex",
+                      }}
+                  >
+                      <Typography variant="h4" sx={{mb: 1, textAlign: "center"}}>
+                          Chat Room
+                      </Typography>
 
-                      <div ref={endOfMessagesRef}/>
+                      <Paper
+                          elevation={3}
+                          sx={{
+                              flex: 1,
+                              p: 2,
+                              display: "flex",
+                              flexDirection: "column",
+                              overflowY: "auto",
+                              overflowX: "auto", // horizontal scroll for long messages
+                              backgroundColor: "#fff",
+                              borderRadius: 2,
+                              minWidth: 0,
+                          }}
+                      >
+                          <List sx={{width: "100%", minWidth: 0}}>
+                              {messages.map((msg, idx) => (
+                                  <ListItem key={idx} alignItems="flex-start">
+                                      <ListItemText
+                                          primary={<Typography
+                                              variant="body1"
+                                              color="text.primary"
+                                              sx={{
+                                                  whiteSpace: "nowrap", // no wrapping
+                                              }}
+                                          >
+                                              {msg.username}: {msg.message}
+                                          </Typography>}/>
+                                  </ListItem>
+                              ))}
+                          </List>
+                          <div ref={endOfMessagesRef}/>
+                      </Paper>
+
+                      {/* Input Area */}
+                      <Box sx={{display: "flex", gap: 1}}>
+                          <TextField
+                              fullWidth
+                              placeholder="Type a message..."
+                              variant="outlined"
+                              value={input}
+                              onChange={(e) => setInput(e.target.value)}
+                              onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                              inputProps={{maxLength: 64}}/>
+                          <IconButton
+                              color="primary"
+                              size="large"
+                              onClick={handleSend}
+                              sx={{
+                                  bgcolor: "primary.main",
+                                  "&:hover": {bgcolor: "primary.dark"},
+                                  color: "#fff",
+                              }}
+                          >
+                              <SendIcon/>
+                          </IconButton>
+                      </Box>
+                  </Box>
+              </Box>
+                  <div>
+                      <PlayerSidebar players={loggedInPlayers}></PlayerSidebar>
                   </div>
-                  <input
-                      type="text"
-                      placeholder="Type a message"
-                      value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                      style={{width: 300, marginRight: 10}}
-                      maxLength={50}/>
-                  <button onClick={handleSend}>Send</button>
               </>
-          ): (
-              <div>
-                  <Button variant="contained" color="primary" onClick={() => setDialogOpen(true)}>Login</Button>
-              </div>
-          )}
-      </div>
-          <div style={{ flexGrow: 1}}>
-              <PlayerSidebar players={loggedInPlayers}></PlayerSidebar>
-          </div>
+          ):(<LoginForm></LoginForm>)}
       </div>
   );
 }
